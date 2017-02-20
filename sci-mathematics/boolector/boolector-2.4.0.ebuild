@@ -4,6 +4,10 @@
 
 EAPI=6
 
+PYTHON_COMPAT=( python3_4 )
+
+inherit python-single-r1
+
 DESCRIPTION="An efficient SMT solver"
 HOMEPAGE="http://fmv.jku.at/boolector/"
 SRC_URI="http://fmv.jku.at/boolector/boolector-2.4.0-with-lingeling-bbc.tar.bz2"
@@ -14,13 +18,10 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc python"
 
-DEPEND="${PYTHON_DEPS}"
+DEPEND="python? ( ${PYTHON_DEPS} )"
 RDEPEND="${DEPEND}"
 
-PYTHON_COMPAT=( python3_4 )
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-
-inherit python-single-r1
 
 src_unpack() {
 	# unpack distributed archive (contains boolector + lingeling)
