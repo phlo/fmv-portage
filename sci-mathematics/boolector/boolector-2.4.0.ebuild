@@ -13,7 +13,7 @@ HOMEPAGE="http://fmv.jku.at/boolector/"
 SRC_URI="http://fmv.jku.at/boolector/boolector-2.4.0-with-lingeling-bbc.tar.bz2"
 RESTRICT="mirror"
 
-LICENSE="FMV"
+LICENSE="boolector-2.4.0.license"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc python"
