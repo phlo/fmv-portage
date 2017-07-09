@@ -1,0 +1,61 @@
+--- before/configure.sh	2017-07-09 22:51:25.769154554 +0200
++++ after/configure.sh	2017-07-09 23:10:41.992212220 +0200
+@@ -12,6 +12,7 @@
+ druplig=undefined
+ profile=undefined
+ static=no
++shared=no
+ classify=no
+ aiger=undefined
+ yalsat=undefined
+@@ -75,7 +76,8 @@
+     --no-dema) dema=no;;
+     -O0|-O1|-O2|-O3|-O4) olevel=$1;;
+     -lto|-flto|--lto|--flto) lto=yes;;
+-    -static|--static|-s) static=yes;;
++    -static|--static) static=yes;;
++    -shared|--shared) shared=yes;;
+     --aiger=*) aiger=`echo "$1"|sed -e 's,^--aiger=,,'`;;
+     --no-aiger) aiger=no;;
+     --yalsat=*) yalsat=`echo "$1"|sed -e 's,^--yalsat=,,'`;;
+@@ -232,7 +234,6 @@
+ fi
+ 
+ [ $chksol = undefined ] && chksol=$check
+-[ $static = yes ] && CFLAGS="$CFLAGS -static"
+ [ $profile = yes ] && CFLAGS="$CFLAGS -pg"
+ [ $coverage = yes ] && CFLAGS="$CFLAGS -ftest-coverage -fprofile-arcs"
+ [ $other = none ] || CFLAGS="$CFLAGS $other"
+@@ -264,6 +265,18 @@
+   EXTRAOBJS="sc14classify/sc14classify.o"
+ fi
+ 
++LIBLGL="liblgl.a"
++BINCFLAGS="\$(CFLAGS)"
++OBJCFLAGS="\$(CFLAGS)"
++
++[ $static = yes ] && BINCFLAGS="${BINCFLAGS} -static"
++
++if [ $shared = yes ]
++then
++	LIBLGL="${LIBLGL} liblgl.so"
++	OBJCFLAGS="${OBJCFLAGS} -fPIC"
++fi
++
+ echo "$CC $CFLAGS"
+ 
+ ##########################################################################
+@@ -272,10 +285,13 @@
+ sed \
+   -e "s,@CC@,$CC," \
+   -e "s,@CFLAGS@,$CFLAGS," \
++  -e "s,@BINCFLAGS@,$BINCFLAGS," \
++  -e "s,@OBJCFLAGS@,$OBJCFLAGS," \
+   -e "s,@HDEPS@,$HDEPS," \
+   -e "s,@LDEPS@,$LDEPS," \
+   -e "s,@EXTRAOBJS@,$EXTRAOBJS," \
+   -e "s,@AIGERTARGETS@,$AIGERTARGETS," \
+   -e "s,@AIGER@,$AIGER," \
+   -e "s,@LIBS@,$LIBS," \
++  -e "s,@LIBLGL@,$LIBLGL," \
+   makefile.in > makefile
