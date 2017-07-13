@@ -1,0 +1,165 @@
+--- before/configure.sh	2017-07-13 18:46:02.056435172 +0200
++++ after/configure.sh	2017-07-13 18:47:57.441440927 +0200
+@@ -158,28 +158,19 @@
+ 
+ #--------------------------------------------------------------------------#
+ 
+-if [ X"$CFLAGS" = X ]
++[ $debug = unknown ] && debug=no
++append-cflags "-W -Wall -Wextra -Wredundant-decls"
++[ $arch = 32 ] && append-cflags "-m32"
++[ $arch = 64 ] && append-cflags "-m64"
++[ $static = yes ] && append-cflags "-static"
++[ $shared = yes ] && append-cflags "-fPIC"
++if [ $debug = yes ]
+ then
+-  [ $debug = unknown ] && debug=no
+-  CFLAGS="-W -Wall -Wextra -Wredundant-decls"
+-  [ $arch = 32 ] && CFLAGS="$CFLAGS -m32"
+-  [ $arch = 64 ] && CFLAGS="$CFLAGS -m64"
+-  [ $static = yes ] && CFLAGS="$CFLAGS -static"
+-  [ $shared = yes ] && CFLAGS="$CFLAGS -fPIC"
+-  if [ $debug = yes ]
+-  then
+-    CFLAGS="$CFLAGS -g3 -ggdb"
+-  else
+-    CFLAGS="$CFLAGS -O3"
+-    [ $check = no ] && CFLAGS="$CFLAGS -DNDEBUG"
+-    [ $flto = yes ] && CFLAGS="$CFLAGS -flto"
+-  fi
+-elif [ $debug = yes ]
+-then
+-  die "CFLAGS environment variable defined and '-g' used"
+-elif [ $debug = no ]
+-then
+-  die "CFLAGS environment variable defined and '-O' used"
++    append-cflags "-g3 -ggdb"
++else
++    is-flagq "-O*" && replace-flags "-O*" "-O3" || append-cflags "-O3"
++    [ $check = no ] && append-cflags "-DNDEBUG"
++    [ $flto = yes ] && append-cflags "-flto"
+ fi
+ 
+ #--------------------------------------------------------------------------#
+@@ -199,9 +190,9 @@
+   log=no
+ fi
+ 
+-[ $log = no ] && CFLAGS="$CFLAGS -DNBTORLOG"
+-[ $gcov = yes ] && CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"
+-[ $gprof = yes ] && CFLAGS="$CFLAGS -pg"
++[ $log = no ] && append-cflags "-DNBTORLOG"
++[ $gcov = yes ] && append-cflags "-fprofile-arcs -ftest-coverage"
++[ $gprof = yes ] && append-cflags "-pg"
+ 
+ #--------------------------------------------------------------------------#
+ 
+@@ -213,7 +204,6 @@
+ LIBZ=no
+ LIBM=no
+ LIBSTDCPP=no
+-RPATHS="-rpath\,$ROOT/$BUILDIR"
+ if [ $shared = yes ]
+ then
+   LDEPS="$BUILDIR/libboolector.so"
+@@ -251,13 +241,11 @@
+ 
+   if [ $picosat = yes ]
+   then
+-    [ X"$CFLAGS" = X ] || CFLAGS="$CFLAGS "
+     [ X"$INCS" = X ] || INCS="$INCS "
+     [ X"$LDEPS" = X ] || LDEPS="$LDEPS "
+     [ X"$LIBS" = X ] || LIBS="$LIBS "
+-    CFLAGS="${CFLAGS}-DBTOR_USE_PICOSAT"
+-    RPATHS="${RPATHS}\,-rpath\,$ROOT/../picosat/"
+-    if [ $shared = yes ]		
++    append-cflags "-DBTOR_USE_PICOSAT"
++    if [ $shared = yes ]
+     then
+       LIBS="${LIBS}-L$ROOT/../picosat -lpicosat"
+       LDEPS="${LDEPS}$ROOT/../picosat/libpicosat.so"
+@@ -276,19 +264,16 @@
+   msg "not using Lingeling as requested by command line option"
+ else
+ 
+-  if [ -d $ROOT/../lingeling ]
++  if [ X"$(ldconfig -p | grep liblgl)" = X ]
+   then
+-    for path in $ROOT/../lingeling/lglib.h $ROOT/../lingeling/liblgl.a allfound
+-    do
+-      [ -f $path ] || break
+-    done
++      path="liblgl.{a,so}"
+   else
+-    path=$ROOT/../lingeling
++      path=allfound
+   fi
+ 
+   if [ $path = allfound ]
+   then
+-    msg "using Lingeling in '$ROOT/../lingeling'"
++    msg "using Lingeling"
+     lingeling=yes
+   elif [ $lingeling = yes ]
+   then
+@@ -300,15 +285,12 @@
+ 
+   if [ $lingeling = yes ]
+   then
+-    [ X"$CFLAGS" = X ] || CFLAGS="$CFLAGS "
+     [ X"$LDEPS" = X ] || LDEPS="$LDEPS "
+     [ X"$LIBS" = X ] || LIBS="$LIBS "
+     [ X"$INCS" = X ] || INCS="$INCS "
+-    CFLAGS="${CFLAGS}-DBTOR_USE_LINGELING"
+-    LIBS="${LIBS}-L$ROOT/../lingeling -llgl"
+-    LDEPS="${LDEPS}$ROOT/../lingeling/liblgl.a"
++    append-cflags "-DBTOR_USE_LINGELING"
++    LIBS="${LIBS}-llgl"
+     LIBM=yes
+-    INCS="${INCS}-I$ROOT/../lingeling"
+   fi
+ 
+   if [ -d $ROOT/../yalsat ]
+@@ -407,14 +389,12 @@
+ 
+   if [ $minisat = yes ]
+   then
+-    [ X"$CFLAGS" = X ] || CFLAGS="$CFLAGS "
+     [ X"$OBJS" = X ] || OBJS="$OBJS "
+     [ X"$LDEPS" = X ] || LDEPS="$LDEPS "
+     [ X"$LIBS" = X ] || LIBS="$LIBS "
+     [ X"$INCS" = X ] || INCS="$INCS "
+-    CFLAGS="${CFLAGS}-DBTOR_USE_MINISAT"
++    append-cflags "-DBTOR_USE_MINISAT"
+     OBJS="${OBJS}$BUILDIR/btorminisat.o"
+-    RPATHS="${RPATHS}\,-rpath\,$ROOT/../minisat/build/dynamic/lib"
+     if [ $shared = yes ]
+     then
+       LIBS="${LIBS}-L$ROOT/../minisat/build/dynamic/lib -lminisat"
+@@ -462,7 +442,6 @@
+ 
+ #--------------------------------------------------------------------------#
+ 
+-LIBS="-Wl\,${RPATHS} ${LIBS}"
+ 
+ if [ $python = yes ]
+ then
+@@ -490,7 +469,7 @@
+     py_library_dirs="$py_library_dirs $ROOT/../minisat/build/dynamic/lib"
+     py_inc_dirs="$py_inc_dirs $ROOT/../minisat/build/dynamic/lib"
+   fi
+-  OBJS="$BUILDIR/api/python/boolector_py.o $OBJS" 
++  OBJS="$BUILDIR/api/python/boolector_py.o $OBJS"
+   pyinc=`$PYTHON -c "import sysconfig; print(sysconfig.get_config_var('CONFINCLUDEPY'))"`
+   pylib=`$PYTHON -c "import sysconfig; print(sysconfig.get_config_var('BINLIBDEST'))"`
+   pyld=`basename $pyinc`
+@@ -510,8 +489,7 @@
+               include_dirs=incdirs,
+               library_dirs=[s for s in "$py_library_dirs".split()],
+               libraries="$py_libraries".split(),
+-              extra_compile_args=[s for s in "$CFLAGS".split() if "-D" in s],
+-       extra_link_args=["-Wl,-rpath,"+":".join([s for s in "$py_library_dirs".split()])]
++              extra_compile_args=[s for s in "$CFLAGS".split() if "-D" in s]
+     )
+ ]
+ setup(cmdclass={'build_ext': build_ext}, ext_modules=ext_modules)

@@ -34,14 +34,14 @@ src_configure() {
 	# enable debugging support
 	use debug && CONF_OPTS="${CONF_OPTS} -g"
 
-	# build shared library?
+	# build shared library
 	use shared && CONF_OPTS="${CONF_OPTS} --shared"
 
-	# build static executables?
+	# build static executables
 	use static && CONF_OPTS="${CONF_OPTS} --static"
 
-	# configure and build lingeling
-	./configure.sh ${CONF_OPTS}
+	# configure lingeling
+	./configure.sh ${CONF_OPTS} || die
 }
 
 src_install() {

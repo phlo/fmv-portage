@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# recursively finds used header files
+
+if [ x"$DIR" = x ]
+then
+	export DIR="$(pwd)/$(dirname $1)"
+	echo $(basename $1)
+fi
+
+for h in $(grep -o "#include \".*\"" $1 | tr -d '"')
+do
+	[ $h = "#include" ] && continue
+	H=$(basename $h)
+	if echo "$FOUND" | grep -q $H
+	then
+		continue
+	else
+		export FOUND="${FOUND} $H"
+	fi
+
+	echo $h
+	$0 $DIR/$h
+done

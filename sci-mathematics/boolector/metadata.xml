@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>florian.schroegendorfer@phlo.at</email>
+	</maintainer>
+	<longdescription lang="en">
+		Boolector is an SMT solver for the quantifier-free theory of bit vectors with arrays. It supports BTOR, SMT-LIB v1, and SMT-LIB v2 as input format and can be either used as a stand-alone SMT solver, or as back end for other tools via its public API. For further information please refer to http://fmv.jku.at/boolector.
+	</longdescription>
+	<use>
+		<flag name="debug">Compile with debugging support</flag>
+		<flag name="log">Compile with logging support</flag>
+		<flag name="shared">Build shared library</flag>
+	</use>
+</pkgmetadata>
