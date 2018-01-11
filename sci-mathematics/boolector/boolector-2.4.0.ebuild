@@ -21,8 +21,8 @@ IUSE="doc debug log python shared static static-libs"
 DEPEND="
 	python? ( ${PYTHON_DEPS} )
 	|| (
-		sci-mathematics/lingeling[shared?]
-		sci-mathematics/lingeling[static-libs?]
+		sci-mathematics/lingeling[shared]
+		sci-mathematics/lingeling[static-libs]
 	)
 	"
 RDEPEND="${DEPEND}"
