@@ -1,0 +1,154 @@
+--- before/configure.sh	2014-05-20 21:48:17.000000000 +0200
++++ after/configure.sh	2018-02-20 01:11:23.385951581 +0100
+@@ -23,103 +23,46 @@
+   esac
+   shift
+ done
+-if [ x"$CC" = x ] 
+-then 
++if [ x"$CC" = x ]
++then
+   msg "using gcc as default compiler"
+   CC=gcc
+ else
+   msg "using $CC as compiler"
+ fi
+-if [ x"$CFLAGS" = x ]
+-then
+-  msg "using default compilation flags"
+-  case x"$CC" in
+-    xgcc*)
+-      CFLAGS="-Wall"
+-      if [ $debug = yes ]
+-      then
+-	CFLAGS="-g"
+-      else
+-	CFLAGS="-O3 -DNDEBUG"
+-      fi
+-      ;;
+-    *)
+-      if [ $debug = yes ]
+-      then
+-	CFLAGS="-g"
+-      else
+-	CFLAGS="-O -DNDEBUG"
+-      fi
+-      ;;
+-  esac
+-else
+-  msg "using custom compilation flags"
+-fi
+-
+-AIGBMCFLAGS="$CFLAGS"
+-AIGDEPCFLAGS="$CFLAGS"
+-
+-PICOSAT=no
+-if [ -d ../picosat ]
+-then
+-  if [ -f ../picosat/picosat.h ]
+-  then
+-    if [ -f ../picosat/picosat.o ]
++case x"$CC" in
++  xgcc*)
++    if [ $debug = yes ]
+     then
+-      if [ -f ../picosat/VERSION ] 
+-      then
+-	PICOSATVERSION="`cat ../picosat/VERSION`"
+-	if [ $PICOSATVERSION -lt 953 ]
+-	then
+-	  wrn "out-dated version $PICOSATVERSION in '../picosat/' (need at least 953 for 'aigbmc')"
+-	else
+-	  msg "found PicoSAT version $PICOSATVERSION in '../picosat'"
+-	  AIGBMCTARGET="aigbmc"
+-	  msg "using '../picosat/picosat.o' for 'aigbmc' and 'aigdep'"
+-	  PICOSAT=yes
+-	  AIGBMCHDEPS="../picosat/picosat.h"
+-	  AIGBMCODEPS="../picosat/picosat.o"
+-	  AIGBMCLIBS="../picosat/picosat.o"
+-	  AIGBMCFLAGS="$AIGBMCFLAGS -DAIGER_HAVE_PICOSAT"
+-	fi
+-      else
+-        wrn "can not find '../picosat/VERSION' (missing for 'aigbmc')"
+-      fi
++      append-cflags "-g"
+     else
+-    wrn \
+-      "can not find '../picosat/picosat.o' object file (no 'aigbmc' target)"
++      replace-flags "-O*" "-O3"
++      append-cflags "-DNDEBUG"
+     fi
+-  else
+-    wrn "can not find '../picosat/picosat.h' header (no 'aigbmc' target)"
+-  fi
+-else
+-  wrn "can not find '../picosat' directory (no 'aigbmc' target)"
+-fi
+-
+-LINGELING=no
+-if [ -d ../lingeling ]
+-then
+-  if [ -f ../lingeling/lglib.h ]
+-  then
+-    if [ -f ../lingeling/liblgl.a ]
++    ;;
++  *)
++    if [ $debug = yes ]
+     then
+-      msg "using '../lingeling/liblgl.a' for 'aigbmc' and 'aigdep'"
+-      LINGELING=yes
+-      AIGBMCHDEPS="$AIGBMCHDEPS ../lingeling/lglib.h"
+-      AIGBMCODEPS="$AIGBMCODEPS ../lingeling/liblgl.a"
+-      AIGBMCLIBS="$AIGBMCLIBS -L../lingeling -llgl -lm"
+-      AIGBMCFLAGS="$AIGBMCFLAGS -DAIGER_HAVE_LINGELING"
++      append-cflags "-g"
+     else
+-      wrn "can not find '../lingeling/liblgl.a' library"
++      replace-flags "-O*" "-O"
++      append-cflags "-DNDEBUG"
+     fi
+-  else
+-    wrn "can not find '../lingeling/lglib.h' header"
+-  fi
+-else
+-  wrn "can not find '../lingeling' directory"
++    ;;
++esac
++
++AIGBMCFLAGS="$CFLAGS"
++AIGDEPCFLAGS="$CFLAGS"
++
++[ x"$LINGELING" = x ] && LINGELING=no
++if [ $LINGELING = yes ]
++then
++  msg "using 'lingeling' for 'aigbmc' and 'aigdep'"
++  AIGBMCLIBS="$AIGBMCLIBS -llgl -lm"
++  AIGBMCFLAGS="$AIGBMCFLAGS -DAIGER_HAVE_LINGELING"
+ fi
+ 
+-if [ $PICOSAT = yes -o $LINGELING = yes ]
++if [ $LINGELING = yes ]
+ then
+   AIGBMCTARGET="aigbmc"
+   AIGDEPTARGET="aigdep"
+@@ -128,14 +71,19 @@
+   AIGDEPLIBS="$AIGBMCLIBS"
+   AIGDEPFLAGS="$AIGBMCFLAGS"
+ else
+-  wrn "no proper '../lingeling' nor '../picosat' (will not build 'aigbmc' nor 'aigdep')"
++  wrn "no 'lingeling' (will not build 'aigbmc' nor 'aigdep')"
+ fi
+ 
++OBJCFLAGS="${OBJCFLAGS} -fPIC"
++AIGLIBTARGET="libaiger.so libsimpaig.so"
++
+ msg "compiling with: $CC $CFLAGS"
+ rm -f makefile
+ sed \
+   -e "s/@CC@/$CC/" \
+   -e "s/@CFLAGS@/$CFLAGS/" \
++  -e "s/@OBJCFLAGS@/$OBJCFLAGS/" \
++  -e "s/@AIGLIBTARGET@/$AIGLIBTARGET/" \
+   -e "s/@AIGBMCTARGET@/$AIGBMCTARGET/" \
+   -e "s/@AIGBMCTARGET@/$AIGBMCTARGET/" \
+   -e "s,@AIGBMCHDEPS@,$AIGBMCHDEPS," \

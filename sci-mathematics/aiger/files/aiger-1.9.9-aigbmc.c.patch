@@ -1,0 +1,19 @@
+--- before/aigbmc.c	2014-05-20 21:48:17.000000000 +0200
++++ after/aigbmc.c	2018-02-19 20:28:00.000000000 +0100
+@@ -27,7 +27,7 @@
+ #endif
+ 
+ #ifdef AIGER_HAVE_LINGELING
+-#include "../lingeling/lglib.h"
++#include <lglib.h>
+ #endif
+ 
+ #include <assert.h>
+@@ -39,7 +39,6 @@
+ 
+ static aiger * model;
+ static const char * name;
+-static PicoSAT * picosat;
+ static unsigned firstlatchidx, firstandidx;
+ 
+ typedef struct Latch { int lit, next; } Latch;

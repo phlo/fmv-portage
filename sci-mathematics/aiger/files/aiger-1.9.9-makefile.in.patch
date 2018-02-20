@@ -1,0 +1,55 @@
+--- before/makefile.in	2014-05-20 21:48:17.000000000 +0200
++++ after/makefile.in	2018-02-19 23:59:30.253736463 +0100
+@@ -1,13 +1,15 @@
+ 
+ CC=@CC@
+ CFLAGS=@CFLAGS@
++OBJCFLAGS=@OBJCFLAGS@
+ 
+ .c.o:
+ 	$(CC) $(CFLAGS) -c $<
+ 
+ OBJS= \
+ aiger.o \
+-simpaig.o
++simpaig.o \
++@AIGLIBTARGET@
+ 
+ BINS= \
+ aigand \
+@@ -129,7 +131,6 @@
+ aigand.o: aiger.h aigand.c makefile
+ aigdd.o: aiger.h aigdd.c makefile
+ aigdep.o: aiger.h aigdep.c makefile
+-aiger.o: aiger.h aiger.c makefile
+ aigflip.o: aiger.h aigflip.c makefile
+ aigfuzz.o: aigfuzz.c aigfuzz.h aiger.h makefile
+ aigfuzzlayers.o: aigfuzzlayers.c aigfuzz.h aiger.h makefile
+@@ -152,11 +153,26 @@
+ aigunroll.o: aiger.h simpaig.h aigunroll.c makefile
+ andtoaig.o: andtoaig.c aiger.h makefile
+ bliftoaig.o: bliftoaig.c aiger.h makefile
+-simpaig.o: simpaig.h simpaig.c makefile
+ smvtoaig.o: smvtoaig.c aiger.h makefile
+ soltostim.o: soltostim.c aiger.h makefile
+ wrapstim.o: wrapstim.c aiger.h makefile
+ 
++aiger.o: aiger.h aiger.c makefile
++	$(CC) $(OBJCFLAGS) -c aiger.c
++
++libaiger.so: aiger.o makefile $(EXTRAOBJS)
++	$(CC) -shared -Wl,-soname,libaiger.so -o $@ aiger.o $(EXTRAOBJS)
++
++libaiger.a: aiger.o makefile $(EXTRAOBJS)
++	ar rc $@ aiger.o $(EXTRAOBJS)
++	ranlib $@
++
++simpaig.o: simpaig.h simpaig.c makefile
++	$(CC) $(OBJCFLAGS) -c simpaig.c
++
++libsimpaig.so: simpaig.o makefile $(EXTRAOBJS)
++	$(CC) -shared -Wl,-soname,$@ -o $@ $< $(EXTRAOBJS)
++
+ clean:
+ 	rm -f *.o 
+ 	rm -f $(TARGETS)

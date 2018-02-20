@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>florian.schroegendorfer@phlo.at</email>
+	</maintainer>
+	<longdescription lang="en">
+		A format, library and set of utilities for And-Inverter Graphs (AIGs).
+	</longdescription>
+	<use>
+		<flag name="debug">Compile with debugging support</flag>
+		<flag name="bmc">Build bounded model checker</flag>
+	</use>
+</pkgmetadata>

@@ -1,0 +1,11 @@
+--- before/aigdep.c	2014-05-20 21:49:03.000000000 +0200
++++ after/aigdep.c	2018-02-19 20:24:52.000000000 +0100
+@@ -29,7 +29,7 @@
+ #endif
+ 
+ #ifdef AIGER_HAVE_LINGELING
+-#include "../lingeling/lglib.h"
++#include <lglib.h>
+ static int use_lingeling;
+ static LGL * lgl;
+ #endif

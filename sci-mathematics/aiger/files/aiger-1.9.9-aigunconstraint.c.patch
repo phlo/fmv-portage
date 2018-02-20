@@ -1,0 +1,10 @@
+--- before/aigunconstraint.c	2013-10-06 15:08:03.000000000 +0200
++++ after/aigunconstraint.c	2018-02-20 00:13:29.211778306 +0100
+@@ -26,6 +26,7 @@
+ #include <stdarg.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <unistd.h>
+ 
+ static const char * USAGE =
+ "usage: aigunconstraint [-h][-v] [<input> [<output>]]\n"
