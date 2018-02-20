@@ -12,7 +12,7 @@ RESTRICT="mirror"
 
 LICENSE="AIGER-EULA"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="bmc debug doc"
 
 DEPEND="
