@@ -1,0 +1,165 @@
+--- before/configure.sh	2018-05-19 20:37:00.932490567 +0200
++++ after/configure.sh	2018-05-19 21:29:34.134647834 +0200
+@@ -181,30 +181,22 @@
+ 
+ #--------------------------------------------------------------------------#
+ 
+-if [ X"$CFLAGS" = X ]
++[ $debug = unknown ] && debug=no
++append-cflags "-W -Wall -Wextra -Wredundant-decls"
++[ $arch = 32 ] && append-cflags "-m32"
++[ $arch = 64 ] && append-cflags "-m64"
++[ $static = yes ] && append-cflags "-static"
++[ $shared = yes ] && append-cflags "-fPIC"
++if [ $debug = yes ]
+ then
+-  [ $debug = unknown ] && debug=no
+-  CFLAGS="-W -Wall -Wextra -Wredundant-decls"
+-  [ $arch = 32 ] && CFLAGS="$CFLAGS -m32"
+-  [ $arch = 64 ] && CFLAGS="$CFLAGS -m64"
+-  [ $static = yes ] && CFLAGS="$CFLAGS -static"
+-  [ $shared = yes ] && CFLAGS="$CFLAGS -fPIC"
+-  if [ $debug = yes ]
+-  then
+-    CFLAGS="$CFLAGS -g3 -ggdb"
+-  else
+-    CFLAGS="$CFLAGS -O3"
+-    [ $check = no ] && CFLAGS="$CFLAGS -DNDEBUG"
+-    [ $flto = yes ] && CFLAGS="$CFLAGS -flto"
+-  fi
+-  [ $flags = none ] || CFLAGS="$CFLAGS $flags"
+-elif [ $debug = yes ]
+-then
+-  die "CFLAGS environment variable defined and '-g' used"
+-elif [ $debug = no ]
+-then
+-  die "CFLAGS environment variable defined and '-O' used"
++    append-cflags "-g3 -ggdb"
++else
++    is-flagq "-O*" && replace-flags "-O*" "-O3" || append-cflags "-O3"
++    [ $check = no ] && append-cflags "-DNDEBUG"
++    [ $flto = yes ] && append-cflags "-flto"
+ fi
++[ $flags = none ] || append-cflags "$flags"
++
+ 
+ [ $timestats = yes ] && CFLAGS="$CFLAGS -DBTOR_TIME_STATISTICS"
+ [ $timestats = no ] && msg "time statistics are disabled (no '--time-stats')"
+@@ -226,10 +218,10 @@
+   log=no
+ fi
+ 
+-[ $log = no ] && CFLAGS="$CFLAGS -DNBTORLOG"
+-[ $asan = yes ] && CFLAGS="$CFLAGS -fsanitize=address -fsanitize-recover=address"
+-[ $gcov = yes ] && CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"
+-[ $gprof = yes ] && CFLAGS="$CFLAGS -pg"
++[ $log = no ] && append-cflags "-DNBTORLOG"
++[ $asan = yes ] && append-cflags "-fsanitize=address -fsanitize-recover=address"
++[ $gcov = yes ] && append-cflags "-fprofile-arcs -ftest-coverage"
++[ $gprof = yes ] && append-cflags "-pg"
+ 
+ #--------------------------------------------------------------------------#
+ 
+@@ -241,7 +233,6 @@
+ LIBZ=no
+ LIBM=no
+ LIBSTDCPP=no
+-RPATHS="-rpath\,$ROOT/$BUILDIR"
+ if [ $shared = yes ]
+ then
+   LDEPS="$BUILDIR/libboolector.so"
+@@ -252,29 +243,16 @@
+ 
+ if [ $btor2tools = yes ]
+ then
+-  if [ ! -d $ROOT/../btor2tools ]
+-  then
+-    die "btor2tools missing"
+-  fi
+-  if [ $shared = yes -a ! -f $ROOT/../btor2tools/build/libbtor2parser.so ]
++  if [ $shared = yes -a X"$(ldconfig -p | grep libbtor2parser)" = X ]
+   then
+     die "libbtor2parser.so not found. Compile btor2tools as shared library"
+-  elif [ $shared = no -a ! -f $ROOT/../btor2tools/build/libbtor2parser.a ]
++  elif [ $shared = no -a ! -f /usr/lib/libbtor2parser.a ]
+   then
+     die "libbtor2parser.a library not found. Compile btor2tools first."
+   fi
+-  if [ $shared = yes ]
+-  then
+-    LIBS="${LIBS} -L$ROOT/../btor2tools/build -lbtor2parser"
+-    LDEPS="${LDEPS} $ROOT/../btor2tools/build/libbtor2parser.so"
+-  else
+-    LIBS="${LIBS} -L$ROOT/../btor2tools/build -lbtor2parser"
+-    LDEPS="${LDEPS} $ROOT/../btor2tools/build/libbtor2parser.a"
+-  fi
+-  INCS="${INCS} -I$ROOT/../btor2tools/src"
+-  RPATHS="${RPATHS}\,-rpath\,$ROOT/../btor2tools/build"
++  LIBS="${LIBS} -lbtor2parser"
+ else
+-  msg "no using BTOR2Tools"
++  msg "not using BTOR2Tools"
+ fi
+ 
+ #--------------------------------------------------------------------------#
+@@ -333,19 +311,16 @@
+   msg "not using Lingeling as requested by command line option"
+ else
+ 
+-  if [ -d $ROOT/../lingeling ]
++  if [ X"$(ldconfig -p | grep liblgl)" = X ]
+   then
+-    for path in $ROOT/../lingeling/lglib.h $ROOT/../lingeling/liblgl.a allfound
+-    do
+-      [ -f $path ] || break
+-    done
++      path="liblgl.{a,so}"
+   else
+-    path=$ROOT/../lingeling
++      path=allfound
+   fi
+ 
+   if [ $path = allfound ]
+   then
+-    msg "using Lingeling in '$ROOT/../lingeling'"
++    msg "using Lingeling"
+     lingeling=yes
+   elif [ $lingeling = yes ]
+   then
+@@ -357,15 +332,12 @@
+ 
+   if [ $lingeling = yes ]
+   then
+-    [ X"$CFLAGS" = X ] || CFLAGS="$CFLAGS "
+     [ X"$LDEPS" = X ] || LDEPS="$LDEPS "
+     [ X"$LIBS" = X ] || LIBS="$LIBS "
+     [ X"$INCS" = X ] || INCS="$INCS "
+-    CFLAGS="${CFLAGS}-DBTOR_USE_LINGELING"
+-    LIBS="${LIBS}-L$ROOT/../lingeling -llgl"
+-    LDEPS="${LDEPS}$ROOT/../lingeling/liblgl.a"
++    append-cflags "-DBTOR_USE_LINGELING"
++    LIBS="${LIBS}-llgl"
+     LIBM=yes
+-    INCS="${INCS}-I$ROOT/../lingeling"
+   fi
+ 
+   if [ -d $ROOT/../yalsat ]
+@@ -576,8 +548,6 @@
+ 
+ #--------------------------------------------------------------------------#
+ 
+-LIBS="-Wl\,${RPATHS} ${LIBS}"
+-
+ if [ $python = yes ]
+ then
+   # set default python command if no PYTHON environment variable was set
+@@ -632,8 +602,7 @@
+         include_dirs="$SRCDIR $SRCDIR/api/python $py_inc_dirs".split(),
+         library_dirs="$py_library_dirs".split(),
+         libraries="$py_libraries".split(),
+-        extra_compile_args=[s for s in "$CFLAGS".split() if "-D" in s],
+-        extra_link_args=["-Wl,-rpath,"+":".join("$py_library_dirs".split())]
++        extra_compile_args=[s for s in "$CFLAGS".split() if "-D" in s]
+     ),
+ ]
+ setup(ext_modules=cythonize(ext_modules,
