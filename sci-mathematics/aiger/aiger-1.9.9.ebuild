@@ -51,7 +51,7 @@ src_configure() {
 	# enable debugging support
 	use debug && CONF_OPTS="${CONF_OPTS} -g"
 
-	# configure lingeling
+	# configure AIGER
 	export -f all-flag-vars
 	export -f append-cflags
 	export -f replace-flags
