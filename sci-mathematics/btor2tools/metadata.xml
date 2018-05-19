@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>florian.schroegendorfer@phlo.at</email>
+	</maintainer>
+	<longdescription lang="en">
+		The Btor2Tools package provides a generic parser and tools for the BTOR2 format.
+	</longdescription>
+	<use>
+		<flag name="debug">Compile with debugging support</flag>
+		<flag name="shared">Build shared library</flag>
+	</use>
+</pkgmetadata>
