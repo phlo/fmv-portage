@@ -9,7 +9,6 @@ inherit flag-o-matic python-single-r1 git-r3
 
 DESCRIPTION="An efficient SMT solver"
 HOMEPAGE="http://fmv.jku.at/boolector https://github.com/Boolector/boolector"
-RESTRICT="mirror"
 
 EGIT_REPO_URI="https://github.com/Boolector/boolector.git"
 
