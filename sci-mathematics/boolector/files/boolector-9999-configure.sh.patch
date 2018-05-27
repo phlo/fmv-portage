@@ -1,22 +1,18 @@
---- before/configure.sh	2018-05-19 20:37:00.932490567 +0200
-+++ after/configure.sh	2018-05-19 21:29:34.134647834 +0200
-@@ -181,30 +181,22 @@
+--- before/configure.sh	2018-05-28 00:26:32.559849096 +0200
++++ after/configure.sh	2018-05-28 00:28:22.540859876 +0200
+@@ -178,28 +178,20 @@
  
  #--------------------------------------------------------------------------#
  
 -if [ X"$CFLAGS" = X ]
 +[ $debug = unknown ] && debug=no
 +append-cflags "-W -Wall -Wextra -Wredundant-decls"
-+[ $arch = 32 ] && append-cflags "-m32"
-+[ $arch = 64 ] && append-cflags "-m64"
 +[ $static = yes ] && append-cflags "-static"
 +[ $shared = yes ] && append-cflags "-fPIC"
 +if [ $debug = yes ]
  then
 -  [ $debug = unknown ] && debug=no
 -  CFLAGS="-W -Wall -Wextra -Wredundant-decls"
--  [ $arch = 32 ] && CFLAGS="$CFLAGS -m32"
--  [ $arch = 64 ] && CFLAGS="$CFLAGS -m64"
 -  [ $static = yes ] && CFLAGS="$CFLAGS -static"
 -  [ $shared = yes ] && CFLAGS="$CFLAGS -fPIC"
 -  if [ $debug = yes ]
@@ -45,7 +41,7 @@
  
  [ $timestats = yes ] && CFLAGS="$CFLAGS -DBTOR_TIME_STATISTICS"
  [ $timestats = no ] && msg "time statistics are disabled (no '--time-stats')"
-@@ -226,10 +218,10 @@
+@@ -221,10 +213,10 @@
    log=no
  fi
  
@@ -60,7 +56,7 @@
  
  #--------------------------------------------------------------------------#
  
-@@ -241,7 +233,6 @@
+@@ -236,7 +228,6 @@
  LIBZ=no
  LIBM=no
  LIBSTDCPP=no
@@ -68,7 +64,7 @@
  if [ $shared = yes ]
  then
    LDEPS="$BUILDIR/libboolector.so"
-@@ -252,29 +243,16 @@
+@@ -247,29 +238,16 @@
  
  if [ $btor2tools = yes ]
  then
@@ -102,7 +98,7 @@
  fi
  
  #--------------------------------------------------------------------------#
-@@ -333,19 +311,16 @@
+@@ -328,19 +306,16 @@
    msg "not using Lingeling as requested by command line option"
  else
  
@@ -126,7 +122,7 @@
      lingeling=yes
    elif [ $lingeling = yes ]
    then
-@@ -357,15 +332,12 @@
+@@ -352,15 +327,12 @@
  
    if [ $lingeling = yes ]
    then
@@ -144,7 +140,7 @@
    fi
  
    if [ -d $ROOT/../yalsat ]
-@@ -576,8 +548,6 @@
+@@ -571,8 +543,6 @@
  
  #--------------------------------------------------------------------------#
  
@@ -153,7 +149,7 @@
  if [ $python = yes ]
  then
    # set default python command if no PYTHON environment variable was set
-@@ -632,8 +602,7 @@
+@@ -627,8 +597,7 @@
          include_dirs="$SRCDIR $SRCDIR/api/python $py_inc_dirs".split(),
          library_dirs="$py_library_dirs".split(),
          libraries="$py_libraries".split(),

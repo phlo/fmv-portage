@@ -1,6 +1,6 @@
---- before/configure.sh	2018-05-19 19:53:09.672359333 +0200
-+++ after/configure.sh	2018-05-19 19:59:50.548379327 +0200
-@@ -66,30 +66,21 @@
+--- before/configure.sh	2018-05-28 00:19:49.079809548 +0200
++++ after/configure.sh	2018-05-28 00:23:38.679832053 +0200
+@@ -70,31 +70,22 @@
  
  [ X"$CC" = X ] && CC=gcc
  
@@ -9,12 +9,14 @@
 +append-cflags "-W -Wall -Wextra -Wredundant-decls"
 +[ $static = yes ] && append-cflags "-static"
 +[ $shared = yes ] && append-cflags "-fPIC"
++[ $flags = none ] || append-cflags "$flags"
 +if [ $debug = yes ]
  then
 -  [ $debug = unknown ] && debug=no
 -  CFLAGS="-W -Wall -Wextra -Wredundant-decls"
 -  [ $static = yes ] && CFLAGS="$CFLAGS -static"
 -  [ $shared = yes ] && CFLAGS="$CFLAGS -fPIC"
+-  [ $flags = none ] || CFLAGS="$CFLAGS $flags"
 -  if [ $debug = yes ]
 -  then
 -    CFLAGS="$CFLAGS -g3 -ggdb"
