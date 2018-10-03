@@ -5,7 +5,7 @@ EAPI=6
 
 PYTHON_COMPAT=( python{3_4,3_5,3_6} )
 
-inherit flag-o-matic python-single-r1 git-r3
+inherit cmake-utils flag-o-matic git-r3 python-single-r1
 
 DESCRIPTION="An efficient SMT solver"
 HOMEPAGE="http://fmv.jku.at/boolector https://github.com/Boolector/boolector"
@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="doc debug log python shared static static-libs"
 
 DEPEND="
-	python? ( ${PYTHON_DEPS} )
+	>=dev-util/cmake-2.8
 	|| (
 		sci-mathematics/lingeling[shared]
 		sci-mathematics/lingeling[static-libs]
@@ -27,12 +27,14 @@ DEPEND="
 		sci-mathematics/btor2tools[shared]
 		sci-mathematics/btor2tools[static-libs]
 	)
+	python? ( ${PYTHON_DEPS} )
+	doc? ( dev-python/sphinx )
 	"
 RDEPEND="${DEPEND}"
 
 REQUIRED_USE="python? ( shared ${PYTHON_REQUIRED_USE} )"
 
-PATCHES="${FILESDIR}/${P}-configure.sh.patch"
+PATCHES="${FILESDIR}/${P}-cmake-*"
 
 HEADERS="
 	boolector.h
@@ -42,6 +44,8 @@ HEADERS="
 	utils/btorhashptr.h
 	utils/btorhash.h
 	"
+
+BUILD_DIR="build"
 
 src_configure() {
 	# configure script arguments
@@ -54,13 +58,10 @@ src_configure() {
 	use log && CONF_OPTS="${CONF_OPTS} -l"
 
 	# build shared library
-	use shared && CONF_OPTS="${CONF_OPTS} -shared"
-
-	# build static executables
-	use static && CONF_OPTS="${CONF_OPTS} -static"
+	use shared && CONF_OPTS="${CONF_OPTS} --shared"
 
 	# build python API
-	use python && CONF_OPTS="${CONF_OPTS} -python"
+	use python && CONF_OPTS="${CONF_OPTS} --python"
 
 	# configure boolector
 	export -f _is_flagq
@@ -71,13 +72,15 @@ src_configure() {
 	./configure.sh ${CONF_OPTS} || die
 }
 
+# src_compile for building sphinx docs?
+
 src_install() {
 	# install boolector binaries
-	dobin bin/boolector
-	dobin bin/btorimc
-	dobin bin/btormbt
-	dobin bin/btormc
-	dobin bin/btoruntrace
+	dobin build/bin/boolector
+	dobin build/bin/btorimc
+	dobin build/bin/btormbt
+	dobin build/bin/btormc
+	dobin build/bin/btoruntrace
 
 	# install header files
 	if use shared || use static-libs
@@ -95,13 +98,13 @@ src_install() {
 	fi
 
 	# install shared library
-	use shared && dolib.so build/libboolector.so
+	use shared && dolib.so build/lib/libboolector.so
 
 	# install static library
-	use static-libs && dolib.a build/libboolector.a
+	use static-libs && dolib.a build/lib/libboolector.a
 
 	# install python library
-	use python && python_domodule build/boolector.cpython*.so
+	use python && python_domodule build/lib/pyboolector.cpython*.so
 
 	# install documentation
 	if use doc
