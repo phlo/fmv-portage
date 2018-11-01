@@ -1,0 +1,28 @@
+--- before/cmake/FindLINGELING.cmake	2018-10-03 21:15:41.192614333 +0200
++++ after/cmake/FindLINGELING.cmake	2018-10-03 21:07:55.458591104 +0200
+@@ -14,11 +14,7 @@
+   set(GIVEN_LINGELING_ROOT_DIR FALSE)
+ endif()
+ 
+-find_path(LINGELING_INCLUDE_DIR
+-  NAMES lglib.h
+-  PATHS "${LINGELING_ROOT_DIR}"
+-  NO_DEFAULT_PATH
+-  )
++find_path(LINGELING_INCLUDE_DIR NAMES lglib.h)
+ 
+ # Prefer shared libraries if SHARED is enabled
+ if(SHARED)
+@@ -27,11 +23,7 @@
+   set(libsuffix "a")
+ endif()
+ 
+-find_library(LINGELING_LIBRARIES
+-  NAMES "liblgl.${libsuffix}" lgl
+-  PATHS "${LINGELING_ROOT_DIR}"
+-  NO_DEFAULT_PATH
+-  )
++find_library(LINGELING_LIBRARIES NAMES "liblgl.${libsuffix}" lgl)
+ 
+ 
+ include(FindPackageHandleStandardArgs)
