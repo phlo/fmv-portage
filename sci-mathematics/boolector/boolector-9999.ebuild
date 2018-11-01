@@ -17,8 +17,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc debug log python shared static static-libs"
 
-DEPEND="
-	>=dev-util/cmake-2.8
+RDEPEND="
 	|| (
 		sci-mathematics/lingeling[shared]
 		sci-mathematics/lingeling[static-libs]
@@ -28,9 +27,12 @@ DEPEND="
 		sci-mathematics/btor2tools[static-libs]
 	)
 	python? ( ${PYTHON_DEPS} )
-	doc? ( dev-python/sphinx )
 	"
-RDEPEND="${DEPEND}"
+DEPEND="
+	${RDEPEND}
+	>=dev-util/cmake-2.8
+	doc? ( >=dev-python/sphinx-1.2 )
+	"
 
 REQUIRED_USE="python? ( shared ${PYTHON_REQUIRED_USE} )"
 
@@ -72,7 +74,13 @@ src_configure() {
 	./configure.sh ${CONF_OPTS} || die
 }
 
-# src_compile for building sphinx docs?
+src_compile() {
+	# compile with cmake
+	cmake-utils_src_compile
+
+	# build api doc with sphinx
+	use doc && cd doc && make html
+}
 
 src_install() {
 	# install boolector binaries
@@ -109,7 +117,7 @@ src_install() {
 	# install documentation
 	if use doc
 	then
-		HTML_DOCS="doc/*"
+		HTML_DOCS="doc/_build/html/*"
 		einstalldocs
 	fi
 }
