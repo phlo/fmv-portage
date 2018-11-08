@@ -5,7 +5,7 @@ EAPI=6
 
 PYTHON_COMPAT=( python{3_4,3_5,3_6,3_7} )
 
-inherit cmake-utils flag-o-matic git-r3 python-single-r1
+inherit cmake-utils git-r3 python-single-r1
 
 DESCRIPTION="An efficient SMT solver"
 HOMEPAGE="http://fmv.jku.at/boolector https://github.com/Boolector/boolector"
@@ -67,11 +67,6 @@ src_configure() {
 	use python && CONF_OPTS="${CONF_OPTS} --python"
 
 	# configure boolector
-	export -f _is_flagq
-	export -f all-flag-vars
-	export -f append-cflags
-	export -f is-flagq
-	export -f replace-flags
 	./configure.sh ${CONF_OPTS} || die
 }
 
