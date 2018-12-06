@@ -5,7 +5,7 @@ EAPI=6
 
 PYTHON_COMPAT=( python{3_4,3_5,3_6,3_7} )
 
-inherit cmake-utils git-r3 python-single-r1
+inherit git-r3 python-single-r1
 
 DESCRIPTION="An efficient SMT solver"
 HOMEPAGE="http://fmv.jku.at/boolector https://github.com/Boolector/boolector"
@@ -51,27 +51,30 @@ BUILD_DIR="build"
 
 src_configure() {
 	# configure script arguments
-	local CONF_OPTS=""
+	local CONF_OPTS="-DCMAKE_SKIP_RPATH=TRUE"
 
 	# enable debugging support
-	use debug && CONF_OPTS="${CONF_OPTS} -g"
+	use debug && CONF_OPTS="${CONF_OPTS} -DCMAKE_BUILD_TYPE=Debug"
 
 	# enable logging
-	use log && CONF_OPTS="${CONF_OPTS} -l"
+	use log && CONF_OPTS="${CONF_OPTS} -DLOG=ON"
 
 	# build shared library
-	use shared && CONF_OPTS="${CONF_OPTS} --shared"
+	use shared && CONF_OPTS="${CONF_OPTS} -DSHARED=ON"
 
 	# build python API
-	use python && CONF_OPTS="${CONF_OPTS} --python"
+	use python && CONF_OPTS="${CONF_OPTS} -DPYTHON=ON"
+
+	# create build dir
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
 	# configure boolector
-	./configure.sh ${CONF_OPTS} || die
+	cmake .. ${CONF_OPTS} || die
 }
 
 src_compile() {
-	# compile with cmake
-	cmake-utils_src_compile
+	# compile
+	make -C build
 
 	# build api doc with sphinx
 	use doc && cd doc && make html
@@ -107,7 +110,7 @@ src_install() {
 	use static-libs && dolib.a build/lib/libboolector.a
 
 	# install python library
-	use python && python_domodule build/lib/pyboolector.cpython*.so
+	use python && python_domodule build/lib/pyboolector*.so
 
 	# install documentation
 	if use doc

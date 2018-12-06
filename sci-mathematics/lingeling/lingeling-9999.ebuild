@@ -15,9 +15,9 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="debug doc shared static static-libs"
 
-PATCHES=" \
-	${FILESDIR}/lingeling-bbc-configure.sh.patch \
-	${FILESDIR}/lingeling-bbc-makefile.in.patch \
+PATCHES="
+	"${FILESDIR}"/lingeling-bbc-configure.sh.patch
+	"${FILESDIR}"/lingeling-bbc-makefile.in.patch
 	"
 
 src_configure() {
