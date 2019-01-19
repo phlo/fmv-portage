@@ -36,15 +36,9 @@ DEPEND="
 
 REQUIRED_USE="python? ( shared ${PYTHON_REQUIRED_USE} )"
 
-PATCHES="${FILESDIR}/${P}-cmake-*"
-
 HEADERS="
 	boolector.h
 	btortypes.h
-	btoropt.h
-	utils/btormem.h
-	utils/btorhashptr.h
-	utils/btorhash.h
 	"
 
 BUILD_DIR="build"
@@ -74,7 +68,7 @@ src_configure() {
 
 src_compile() {
 	# compile
-	make -C build
+	make -C build || die
 
 	# build api doc with sphinx
 	use doc && cd doc && make html
@@ -83,10 +77,7 @@ src_compile() {
 src_install() {
 	# install boolector binaries
 	dobin build/bin/boolector
-	dobin build/bin/btorimc
-	dobin build/bin/btormbt
 	dobin build/bin/btormc
-	dobin build/bin/btoruntrace
 
 	# install header files
 	if use shared || use static-libs
