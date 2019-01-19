@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PYTHON_COMPAT=( python{3_4,3_5,3_6,3_7} )
 
@@ -17,7 +17,11 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc debug log python shared static static-libs"
 
-RDEPEND="
+BDEPEND="
+	>=dev-util/cmake-2.8
+	doc? ( >=dev-python/sphinx-1.2 )
+	"
+DEPEND="
 	|| (
 		sci-mathematics/lingeling[shared]
 		sci-mathematics/lingeling[static-libs]
@@ -28,11 +32,7 @@ RDEPEND="
 	)
 	python? ( ${PYTHON_DEPS} )
 	"
-DEPEND="
-	${RDEPEND}
-	>=dev-util/cmake-2.8
-	doc? ( >=dev-python/sphinx-1.2 )
-	"
+RDEPEND="${DEPEND}"
 
 REQUIRED_USE="python? ( shared ${PYTHON_REQUIRED_USE} )"
 
@@ -60,10 +60,10 @@ src_configure() {
 	use python && CONF_OPTS="${CONF_OPTS} -DPYTHON=ON"
 
 	# create build dir
-	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
+	mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}"
 
 	# configure boolector
-	cmake .. ${CONF_OPTS} || die
+	cmake .. "${CONF_OPTS}" || die
 }
 
 src_compile() {
