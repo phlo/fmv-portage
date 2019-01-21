@@ -63,7 +63,7 @@ src_configure() {
 	mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}"
 
 	# configure boolector
-	cmake .. "${CONF_OPTS}" || die
+	cmake .. ${CONF_OPTS} || die
 }
 
 src_compile() {
